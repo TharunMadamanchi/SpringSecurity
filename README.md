@@ -28,14 +28,15 @@ Frontend Alerts: React shows alert and message when blocked.
 
 
 Explanation about each attributes:-
-role – tells what type of user it is (like “admin” or “user”).
-username – the name that the user uses to log in.
-version – shows the version of the user record or data (often for tracking changes).
-account_non_locked – shows if the account is locked or not (t for true, meaning not locked).
-failed_attempts – counts how many times the user entered the wrong password.
-last_login_at – the date and time when the user last logged in.
-last_logout_at – the date and time when the user last logged out.
-password – stores the user’s password in encrypted (hashed) form, not plain text.
+**role** – tells what type of user it is (like “admin” or “user”).  
+**username** – the name that the user uses to log in.  
+**version** – shows the version of the user record or data (often for tracking changes).  
+**account_non_locked** – shows if the account is locked or not (t for true, meaning not locked).  
+**failed_attempts** – counts how many times the user entered the wrong password.  
+**last_login_at** – the date and time when the user last logged in.  
+**last_logout_at** – the date and time when the user last logged out.  
+**password** – stores the user’s password in encrypted (hashed) form, not plain text.  
+
 
 <img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/0de49517-8782-4941-a6b7-4635722c1a6a" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/086421bc-f789-4da5-835f-3df26c916880" />
