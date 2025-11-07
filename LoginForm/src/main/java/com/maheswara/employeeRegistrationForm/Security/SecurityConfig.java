@@ -49,19 +49,19 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ Password encoder bean
+    //  Password encoder bean
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Authentication manager bean
+    //  Authentication manager bean
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // ✅ CORS configuration using CorsConfigurationSource
+    //  CORS configuration using CorsConfigurationSource
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -76,7 +76,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    // ✅ Optional: WebMvcConfigurer for MVC-based CORS support
+    //  Optional: WebMvcConfigurer for MVC-based CORS support
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
