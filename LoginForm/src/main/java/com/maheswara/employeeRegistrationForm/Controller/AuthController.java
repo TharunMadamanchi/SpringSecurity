@@ -5,13 +5,14 @@ import com.maheswara.employeeRegistrationForm.DTO.UserLoginDTO;
 import com.maheswara.employeeRegistrationForm.Model.User;
 import com.maheswara.employeeRegistrationForm.Repository.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,44 +25,60 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserDTO userDTO) {
         User user = new User();
-
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole(userDTO.getRole());
         user.setAccountNonLocked(true);
         user.setFailedAttempts(0);
- user.setLastLoginAt(LocalDateTime.now());
+        user.setLastLoginAt(LocalDateTime.now());
         user.setLastLogoutAt(LocalDateTime.now());
 
         repo.save(user);
-
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginDTO) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserLoginDTO loginDTO) {
         Optional<User> optionalUser = repo.findByUsername(loginDTO.getUsername());
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
         }
 
         User user = optionalUser.get();
 
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+        // Check if account is locked
+        if (!user.isAccountNonLocked()) {
+            return ResponseEntity.status(403).body(Map.of("message", "User is blocked. Max attempts reached."));
         }
 
+        //  Validate password
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            int attempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(attempts);
+
+            if (attempts >= 3) {
+                user.setAccountNonLocked(false);
+                repo.save(user);
+                return ResponseEntity.status(403).body(Map.of("message", "User is blocked. Max attempts reached."));
+            }
+
+            repo.save(user);
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
+        }
+
+        //  Successful login
+        user.setFailedAttempts(0);
         user.setLastLoginAt(LocalDateTime.now());
         repo.save(user);
 
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(Map.of("message", "Login successful"));
     }
 
     @GetMapping("/status")
-    public String status() {
-        return "Authentication service is running!";
+    public Map<String, String> status() {
+        return Map.of("message", "Authentication service is running!");
     }
 }
